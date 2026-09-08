@@ -1,0 +1,121 @@
+.hero {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  padding: 140px 0 100px;
+}
+
+.hero__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10, 11, 14, 0.75) 0%, rgba(10, 11, 14, 0.6) 45%, rgba(10, 11, 14, 0.88) 100%);
+}
+
+.hero__content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  color: #fff;
+}
+
+.hero__signature {
+  font-family: 'Dancing Script', cursive;
+  font-size: 2.6rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.hero__kicker {
+  font-weight: 600;
+  color: #e8e8ea;
+  margin-bottom: 18px;
+  font-size: 0.95rem;
+  letter-spacing: 0.3px;
+}
+
+.hero__title {
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -1px;
+  max-width: 850px;
+  margin: 0 auto 24px;
+}
+
+.hero__desc {
+  max-width: 640px;
+  margin: 0 auto 36px;
+  color: #d8d9dc;
+  line-height: 1.8;
+  font-size: 1rem;
+}
+
+.hero__cta {
+  margin-bottom: 56px;
+}
+
+.hero__quicklinks {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.hero__quickcard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 130px;
+  padding: 24px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  color: #fff;
+  font-weight: 600;
+  font-size: 0.9rem;
+  backdrop-filter: blur(4px);
+  transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+}
+
+.hero__quickcard:hover {
+  transform: translateY(-6px);
+  background: rgba(255, 107, 53, 0.15);
+  border-color: var(--accent);
+}
+
+.hero__quickicon {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  font-size: 1.3rem;
+}
+
+.hero__torn {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  fill: var(--cream);
+  z-index: 3;
+}
+
+@media (max-width: 600px) {
+  .hero {
+    padding-top: 120px;
+  }
+
+  .hero__quickcard {
+    width: 100px;
+    padding: 18px 8px;
+  }
+}
