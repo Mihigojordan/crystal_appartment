@@ -14,6 +14,7 @@
 }
 
 .listing-card {
+  display: block;
   background: #fff;
   border-radius: 18px;
   overflow: hidden;
@@ -43,16 +44,40 @@
   transform: scale(1.08);
 }
 
+.listing-card__noimage {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f2f2f2;
+  color: #9ca3af;
+  font-size: 0.85rem;
+}
+
+.listings__status {
+  text-align: center;
+  color: var(--text-body);
+  padding: 40px 0;
+}
+
 .listing-card__price {
   position: absolute;
   top: 16px;
   right: 16px;
+  left: 16px;
   background: linear-gradient(135deg, var(--accent), #ff4d4d);
   color: #fff;
   font-weight: 700;
   font-size: 0.85rem;
   padding: 8px 16px;
   border-radius: 30px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+  width: fit-content;
+  margin-left: auto;
 }
 
 .listing-card__body {

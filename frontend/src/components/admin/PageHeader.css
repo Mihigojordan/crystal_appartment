@@ -1,0 +1,57 @@
+.admin-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.admin-page-header__text h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.admin-page-header__text p {
+  color: var(--admin-text-muted);
+  font-size: 0.88rem;
+  margin-top: 4px;
+}
+
+.admin-page-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.admin-icon-btn--pdf {
+  background: #e5493f;
+  border-color: transparent;
+  color: #fff;
+}
+
+.admin-icon-btn--pdf:hover {
+  background: #d13d33;
+  color: #fff;
+}
+
+.admin-icon-btn--xls {
+  background: #1c9c5b;
+  border-color: transparent;
+  color: #fff;
+}
+
+.admin-icon-btn--xls:hover {
+  background: #178049;
+  color: #fff;
+}
+
+.admin-btn-secondary {
+  color: #fff;
+  background: #1c3a5e;
+}
+
+.admin-btn-secondary:hover {
+  transform: translateY(-1px);
+  background: #234872;
+}

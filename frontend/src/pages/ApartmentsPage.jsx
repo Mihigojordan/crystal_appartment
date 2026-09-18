@@ -5,7 +5,7 @@ export default function ApartmentsPage() {
   return (
     <>
       <PageHeader
-        title="Apartments"
+        title="Rental Stays"
         subtitle="Browse available homes, hand-picked and updated daily across our communities."
       />
       <Listings />

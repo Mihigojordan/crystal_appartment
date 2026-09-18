@@ -1,0 +1,139 @@
+.admin-booking-view {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.admin-booking-view__head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.admin-booking-view__head h2 {
+  flex: 1;
+  font-size: 1.4rem;
+}
+
+.admin-booking-view__summary {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-radius: 12px;
+}
+
+.admin-booking-view__body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.admin-booking-view__section {
+  flex: 1 1 100%;
+  border-radius: 12px;
+}
+
+.admin-booking-view__section--half {
+  flex: 1 1 calc(50% - 10px);
+}
+
+.admin-booking-view__section h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.admin-booking-view__notes-title {
+  margin-top: 20px;
+}
+
+.admin-booking-view__fields {
+  display: grid;
+  grid-template-columns: auto 1fr auto 1fr;
+  gap: 10px 14px;
+  font-size: 0.87rem;
+}
+
+.admin-booking-view__fields dt {
+  color: var(--admin-text-muted);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.admin-booking-view__fields dd {
+  color: var(--admin-text);
+}
+
+.admin-booking-view__text {
+  font-size: 0.87rem;
+  line-height: 1.6;
+  color: var(--admin-text-body);
+  white-space: pre-wrap;
+}
+
+.admin-booking-view__hint {
+  font-size: 0.78rem;
+  color: var(--admin-text-muted);
+  margin-top: 10px;
+}
+
+.admin-booking-view__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 16px 0;
+}
+
+.admin-booking-view__field label {
+  font-size: 0.75rem;
+  color: var(--admin-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.admin-booking-view__payment-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.admin-booking-view__screenshot {
+  display: block;
+  margin-top: 16px;
+}
+
+.admin-booking-view__screenshot img {
+  max-width: 100%;
+  max-height: 320px;
+  border-radius: 10px;
+  border: 1px solid var(--admin-border);
+}
+
+.admin-booking-view__payment-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+@media (max-width: 1100px) {
+  .admin-booking-view__section--half {
+    flex-basis: 100%;
+  }
+}
+
+@media (max-width: 700px) {
+  .admin-booking-view__fields {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-booking-view__fields dd {
+    margin-bottom: 4px;
+  }
+}
