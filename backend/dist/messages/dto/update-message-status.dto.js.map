@@ -1,0 +1,1 @@
+{"version":3,"file":"update-message-status.dto.js","sourceRoot":"","sources":["../../../src/messages/dto/update-message-status.dto.ts"],"names":[],"mappings":";;;;;;;;;;;;AAAA,qDAAuC;AAE1B,QAAA,gBAAgB,GAAG,CAAC,KAAK,EAAE,MAAM,EAAE,UAAU,CAAU,CAAC;AAGrE,MAAa,sBAAsB;IAEjC,MAAM,CAAgB;CACvB;AAHD,wDAGC;AADC;IADC,IAAA,sBAAI,EAAC,wBAAgB,CAAC;;sDACD"}

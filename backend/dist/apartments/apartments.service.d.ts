@@ -1,0 +1,62 @@
+import { Firestore } from 'firebase-admin/firestore';
+import { CreateApartmentDto } from './dto/create-apartment.dto';
+import { UpdateApartmentDto } from './dto/update-apartment.dto';
+import { ApartmentStatus } from './dto/create-apartment.dto';
+export interface Apartment {
+    id: string;
+    name: string;
+    propertyType: string | null;
+    unitNumber: string | null;
+    listingVisibility: string | null;
+    tenant: string | null;
+    rent: number;
+    status: ApartmentStatus;
+    bedrooms: number | null;
+    bathrooms: number | null;
+    sqft: number | null;
+    maxOccupancy: number | null;
+    floorLevel: string | null;
+    furnishingStatus: string | null;
+    location: string | null;
+    streetAddress: string | null;
+    city: string | null;
+    region: string | null;
+    neighborhood: string | null;
+    postalCode: string | null;
+    googleMapsLink: string | null;
+    description: string | null;
+    image: string | null;
+    gallery: string[];
+    amenities: string[];
+    neighborhoodHighlights: string[];
+    billingCycle: string | null;
+    dailyRate: number | null;
+    sixMonthRate: number | null;
+    yearlyRate: number | null;
+    securityDeposit: number | null;
+    longStayDiscount: number | null;
+    minimumStay: string | null;
+    petPolicy: string | null;
+    smokingPolicy: string | null;
+    cancellationPolicy: string | null;
+    utilitiesIncluded: string[];
+    additionalNotes: string | null;
+    availableFrom: string | null;
+    videoTourUrl: string | null;
+}
+export declare class ApartmentsService {
+    private readonly firestore;
+    constructor(firestore: Firestore | null);
+    private db;
+    private toApartment;
+    list(): Promise<Apartment[]>;
+    findOne(id: string): Promise<Apartment>;
+    private isPubliclyVisible;
+    listPublic(): Promise<Apartment[]>;
+    findOnePublic(id: string): Promise<Apartment>;
+    create(dto: CreateApartmentDto): Promise<Apartment>;
+    update(id: string, dto: UpdateApartmentDto): Promise<Apartment>;
+    remove(id: string): Promise<{
+        id: string;
+    }>;
+}
