@@ -76,9 +76,34 @@
 }
 
 .navbar__book {
-  padding: 12px 26px;
-  font-size: 0.85rem;
+  padding: 12px 20px;
+  font-size: 0.82rem;
   white-space: nowrap;
+}
+
+.navbar__currency {
+  display: flex;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.navbar__currency button {
+  background: transparent;
+  color: #e9eaec;
+  border: none;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  padding: 7px 12px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.navbar__currency button.is-active {
+  background: var(--accent);
+  color: #fff;
 }
 
 button.navbar__toggle {
@@ -114,5 +139,10 @@ button.navbar__toggle {
 
   button.navbar__toggle {
     display: flex;
+  }
+
+  .navbar__currency button {
+    padding: 6px 9px;
+    font-size: 0.68rem;
   }
 }

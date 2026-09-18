@@ -1,0 +1,40 @@
+.admin-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.admin-overview h2 {
+  font-size: 1.4rem;
+}
+
+.admin-overview .admin-card h3 {
+  font-size: 1rem;
+  margin-bottom: 16px;
+}
+
+.admin-overview__list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  list-style: none;
+}
+
+.admin-overview__list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.87rem;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--admin-border);
+}
+
+.admin-overview__list li:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.admin-text-muted {
+  color: var(--admin-text-muted);
+}

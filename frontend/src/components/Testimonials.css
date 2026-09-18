@@ -60,16 +60,8 @@
 
 .testimonial-card__person {
   display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.testimonial-card__person img {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  object-fit: cover;
-  flex-shrink: 0;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .testimonial-card__person h4 {

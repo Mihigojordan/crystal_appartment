@@ -1,19 +1,20 @@
+import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import PageHeader from '../components/PageHeader';
 import ApartmentDetail from '../components/ApartmentDetail';
-import { getListingById } from '../data/listings';
+import { apiFetch } from '../lib/apiClient';
 
 export default function ApartmentDetailPage() {
   const { id } = useParams();
-  const listing = getListingById(id);
+  const [apartment, setApartment] = useState(null);
+  const [error, setError] = useState('');
 
-  return (
-    <>
-      <PageHeader
-        title={listing ? listing.title : 'Apartment'}
-        subtitle={listing ? `${listing.location} — ${listing.price}` : undefined}
-      />
-      <ApartmentDetail />
-    </>
-  );
+  useEffect(() => {
+    setApartment(null);
+    setError('');
+    apiFetch(`/apartments/public/${id}`)
+      .then(setApartment)
+      .catch((err) => setError(err.message));
+  }, [id]);
+
+  return <ApartmentDetail apartment={apartment} error={error} />;
 }

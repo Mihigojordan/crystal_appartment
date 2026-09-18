@@ -14,14 +14,14 @@ export default function WhyUs() {
     <section id="amenities" className="whyus">
       <div className="container whyus__grid">
         <div className="whyus__image">
-          <img src={whyUsImg} alt="Crystal Apartment building" />
+          <img src={whyUsImg} alt="Crystal Rental Stay building" />
         </div>
 
         <div className="whyus__content">
           <span className="section-tag">Why Choose Us</span>
           <h2 className="section-title">Comfort, Trust & Community</h2>
           <p className="whyus__lead">
-            Crystal Apartment has been welcoming residents home for over a decade, pairing
+            Crystal Rental Stay has been welcoming guests home for over a decade, pairing
             timeless architecture with the amenities modern life demands.
           </p>
 

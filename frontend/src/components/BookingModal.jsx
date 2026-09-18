@@ -3,12 +3,19 @@ import {
   FaTimes,
   FaCalendarAlt,
   FaCheckCircle,
+  FaTimesCircle,
   FaLock,
   FaArrowLeft,
+  FaCloudUploadAlt,
+  FaShieldAlt,
 } from 'react-icons/fa';
+import { apiFetch } from '../lib/apiClient';
+import { trackEvent } from '../lib/analytics';
 import './BookingModal.css';
 
 const STEP_LABELS = { tour: 'Tour Date', direct: 'Book Directly', info: 'Your Info', payment: 'Payment' };
+const PAYMENT_METHODS = ['MoMo', 'Airtel'];
+const AMOUNT_MATCH_TOLERANCE = 1;
 
 export default function BookingModal({ listing, onClose }) {
   const [step, setStep] = useState('tour');
@@ -21,11 +28,19 @@ export default function BookingModal({ listing, onClose }) {
     phone: '',
     moveIn: '',
     notes: '',
-    cardName: '',
-    cardNumber: '',
-    expiry: '',
-    cvc: '',
+    paymentMethod: 'MoMo',
+    paymentPhone: '',
+    paymentAmount: '',
+    paymentDate: '',
   });
+
+  const [screenshotUrl, setScreenshotUrl] = useState('');
+  const [uploadingScreenshot, setUploadingScreenshot] = useState(false);
+  const [uploadError, setUploadError] = useState('');
+  const [verifying, setVerifying] = useState(false);
+  const [verifyError, setVerifyError] = useState('');
+  const [extracted, setExtracted] = useState(null);
+  const [matched, setMatched] = useState(false);
 
   useEffect(() => {
     const onKeyDown = (e) => {
@@ -39,16 +54,134 @@ export default function BookingModal({ listing, onClose }) {
     };
   }, [onClose]);
 
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
+
   const update = (field) => (e) => setForm((f) => ({ ...f, [field]: e.target.value }));
+
+  const resetVerification = () => {
+    setExtracted(null);
+    setMatched(false);
+    setVerifyError('');
+  };
+
+  const updateAndReset = (field) => (e) => {
+    resetVerification();
+    setForm((f) => ({ ...f, [field]: e.target.value }));
+  };
 
   const goToInfo = (skipped) => {
     setForm((f) => ({ ...f, skippedTour: skipped }));
     setStep('info');
   };
 
-  const submitPayment = (e) => {
+  const uploadScreenshot = async (file) => {
+    if (!file) return;
+    resetVerification();
+    setUploadError('');
+    setUploadingScreenshot(true);
+    try {
+      const body = new FormData();
+      body.append('file', file);
+      const result = await apiFetch('/uploads/payment-screenshot', { method: 'POST', body });
+      setScreenshotUrl(result.url);
+    } catch (err) {
+      setUploadError(err.message);
+      setScreenshotUrl('');
+    } finally {
+      setUploadingScreenshot(false);
+    }
+  };
+
+  const verifyPayment = async () => {
+    if (!screenshotUrl || !form.paymentAmount || !form.paymentDate) return;
+    setVerifying(true);
+    setVerifyError('');
+    try {
+      const result = await apiFetch('/payments/extract', {
+        method: 'POST',
+        body: JSON.stringify({ imageUrl: screenshotUrl }),
+      });
+      setExtracted(result);
+      const amountOk =
+        result.amount != null &&
+        Math.abs(result.amount - Number(form.paymentAmount)) <= AMOUNT_MATCH_TOLERANCE;
+      const dateOk = !result.date || result.date === form.paymentDate;
+      setMatched(amountOk && dateOk);
+    } catch (err) {
+      setVerifyError(err.message);
+      setMatched(false);
+    } finally {
+      setVerifying(false);
+    }
+  };
+
+  const submitBooking = async (type) => {
+    const created = await apiFetch('/bookings', {
+      method: 'POST',
+      body: JSON.stringify({
+        guestName: form.name,
+        guestEmail: form.email,
+        guestPhone: form.phone,
+        apartmentId: listing?.id ?? '',
+        apartmentTitle: listing?.title ?? '',
+        type,
+        tourDate: form.tourDate || undefined,
+        tourTime: form.tourTime || undefined,
+        moveIn: form.moveIn || undefined,
+        notes: form.notes || undefined,
+      }),
+    });
+    trackEvent('booking_submitted', {
+      booking_type: type,
+      apartment_id: listing?.id ?? '',
+    });
+    return created;
+  };
+
+  const submitTourRequest = async (e) => {
     e.preventDefault();
-    setStep('confirm');
+    setSubmitting(true);
+    setSubmitError('');
+    try {
+      await submitBooking('tour');
+      setStep('confirm');
+    } catch (err) {
+      setSubmitError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const submitPayment = async (e) => {
+    e.preventDefault();
+    if (!matched) return;
+    setSubmitting(true);
+    setSubmitError('');
+    try {
+      const booking = await submitBooking('direct');
+      await apiFetch('/payments/manual', {
+        method: 'POST',
+        body: JSON.stringify({
+          guestName: form.name,
+          guestPhone: form.paymentPhone,
+          apartmentId: listing?.id ?? '',
+          apartmentName: listing?.title ?? '',
+          bookingId: booking.id,
+          method: form.paymentMethod,
+          amount: Number(form.paymentAmount),
+          date: form.paymentDate,
+          screenshotUrl,
+          extractedAmount: extracted?.amount ?? undefined,
+          extractedDate: extracted?.date ?? undefined,
+        }),
+      });
+      setStep('confirm');
+    } catch (err) {
+      setSubmitError(err.message);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const flowSteps = form.skippedTour ? ['tour', 'info', 'payment'] : ['tour', 'info'];
@@ -140,7 +273,11 @@ export default function BookingModal({ listing, onClose }) {
             <form
               onSubmit={(e) => {
                 e.preventDefault();
-                setStep(form.skippedTour ? 'payment' : 'confirm');
+                if (form.skippedTour) {
+                  setStep('payment');
+                } else {
+                  submitTourRequest(e);
+                }
               }}
             >
               <div className="booking-modal__row">
@@ -169,12 +306,16 @@ export default function BookingModal({ listing, onClose }) {
                 <textarea id="info-notes" rows="3" value={form.notes} onChange={update('notes')} placeholder="Anything we should know?" />
               </div>
 
+              {submitError && !form.skippedTour && (
+                <p className="booking-modal__error">{submitError}</p>
+              )}
+
               <div className="booking-modal__actions">
                 <button type="button" className="booking-modal__back" onClick={() => setStep('tour')}>
                   <FaArrowLeft /> Back
                 </button>
-                <button type="submit" className="btn btn-primary booking-modal__submit">
-                  {form.skippedTour ? 'Continue to Payment' : 'Confirm Tour Request'}
+                <button type="submit" className="btn btn-primary booking-modal__submit" disabled={submitting}>
+                  {submitting ? 'Submitting…' : form.skippedTour ? 'Continue to Payment' : 'Confirm Tour Request'}
                 </button>
               </div>
             </form>
@@ -183,48 +324,120 @@ export default function BookingModal({ listing, onClose }) {
 
         {step === 'payment' && (
           <div className="booking-modal__body">
-            <h3>Payment Details</h3>
+            <h3>Pay with Mobile Money</h3>
             <p className="booking-modal__lead">
-              <FaLock /> Secure checkout &mdash; a hold deposit confirms your booking.
+              <FaLock /> Send your deposit via MoMo or Airtel Money, then upload the confirmation
+              screenshot so we can verify it.
             </p>
 
             <form onSubmit={submitPayment}>
-              <div className="booking-modal__field">
-                <label htmlFor="pay-name">Name on Card</label>
-                <input id="pay-name" type="text" required value={form.cardName} onChange={update('cardName')} placeholder="Full name" />
+              <div className="booking-modal__method-toggle">
+                {PAYMENT_METHODS.map((m) => (
+                  <button
+                    type="button"
+                    key={m}
+                    className={form.paymentMethod === m ? 'is-active' : ''}
+                    onClick={() => setForm((f) => ({ ...f, paymentMethod: m }))}
+                  >
+                    {m === 'MoMo' ? 'MTN MoMo' : 'Airtel Money'}
+                  </button>
+                ))}
               </div>
 
               <div className="booking-modal__field">
-                <label htmlFor="pay-number">Card Number</label>
+                <label htmlFor="pay-phone">Phone Number Used to Pay</label>
                 <input
-                  id="pay-number"
-                  type="text"
-                  inputMode="numeric"
+                  id="pay-phone"
+                  type="tel"
                   required
-                  maxLength={19}
-                  value={form.cardNumber}
-                  onChange={update('cardNumber')}
-                  placeholder="1234 1234 1234 1234"
+                  value={form.paymentPhone}
+                  onChange={update('paymentPhone')}
+                  placeholder="e.g. 078xxxxxxx"
                 />
               </div>
 
               <div className="booking-modal__row">
                 <div className="booking-modal__field">
-                  <label htmlFor="pay-expiry">Expiry</label>
-                  <input id="pay-expiry" type="text" required value={form.expiry} onChange={update('expiry')} placeholder="MM/YY" maxLength={5} />
+                  <label htmlFor="pay-amount">Amount Paid (RWF)</label>
+                  <input
+                    id="pay-amount"
+                    type="number"
+                    min="0"
+                    required
+                    value={form.paymentAmount}
+                    onChange={updateAndReset('paymentAmount')}
+                    placeholder="e.g. 65000"
+                  />
                 </div>
                 <div className="booking-modal__field">
-                  <label htmlFor="pay-cvc">CVC</label>
-                  <input id="pay-cvc" type="text" inputMode="numeric" required value={form.cvc} onChange={update('cvc')} placeholder="123" maxLength={4} />
+                  <label htmlFor="pay-date">Date of Payment</label>
+                  <input
+                    id="pay-date"
+                    type="date"
+                    required
+                    value={form.paymentDate}
+                    onChange={updateAndReset('paymentDate')}
+                  />
                 </div>
               </div>
+
+              <div className="booking-modal__field">
+                <label htmlFor="pay-screenshot">Payment Confirmation Screenshot</label>
+                <label className="booking-modal__upload">
+                  <FaCloudUploadAlt />
+                  {uploadingScreenshot ? 'Uploading…' : screenshotUrl ? 'Replace screenshot' : 'Choose screenshot'}
+                  <input
+                    id="pay-screenshot"
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    disabled={uploadingScreenshot}
+                    onChange={(e) => { uploadScreenshot(e.target.files[0]); e.target.value = ''; }}
+                  />
+                </label>
+                {uploadError && <p className="booking-modal__error">{uploadError}</p>}
+                {screenshotUrl && (
+                  <div className="booking-modal__screenshot">
+                    <img src={screenshotUrl} alt="Payment confirmation" />
+                  </div>
+                )}
+              </div>
+
+              {screenshotUrl && !matched && (
+                <button
+                  type="button"
+                  className="booking-modal__verify"
+                  onClick={verifyPayment}
+                  disabled={verifying || !form.paymentAmount || !form.paymentDate}
+                >
+                  <FaShieldAlt /> {verifying ? 'Verifying…' : 'Verify Payment'}
+                </button>
+              )}
+
+              {verifyError && <p className="booking-modal__error">{verifyError}</p>}
+
+              {extracted && (
+                <div className={`booking-modal__match ${matched ? 'is-match' : 'is-mismatch'}`}>
+                  {matched ? <FaCheckCircle /> : <FaTimesCircle />}
+                  <div>
+                    <strong>{matched ? 'Payment verified' : "That doesn't match what you entered"}</strong>
+                    <span>
+                      Screenshot shows {extracted.amount != null ? `RWF ${extracted.amount.toLocaleString()}` : 'an unreadable amount'}
+                      {extracted.date ? ` on ${extracted.date}` : ''}.
+                      {!matched && ' Double-check your amount/date, or upload a clearer screenshot.'}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {submitError && <p className="booking-modal__error">{submitError}</p>}
 
               <div className="booking-modal__actions">
                 <button type="button" className="booking-modal__back" onClick={() => setStep('info')}>
                   <FaArrowLeft /> Back
                 </button>
-                <button type="submit" className="btn btn-primary booking-modal__submit">
-                  Pay &amp; Confirm Booking
+                <button type="submit" className="btn btn-primary booking-modal__submit" disabled={submitting || !matched}>
+                  {submitting ? 'Submitting…' : 'Submit Payment'}
                 </button>
               </div>
             </form>
@@ -237,7 +450,7 @@ export default function BookingModal({ listing, onClose }) {
             <h3>{form.skippedTour ? 'Booking Confirmed!' : 'Tour Confirmed!'}</h3>
             <p className="booking-modal__lead">
               {form.skippedTour
-                ? `Thanks, ${form.name || 'there'} — your booking request for ${listing?.title || 'this apartment'} has been received.`
+                ? `Thanks, ${form.name || 'there'} — we've received your payment proof for ${listing?.title || 'this apartment'}. Our team will confirm it shortly.`
                 : `Thanks, ${form.name || 'there'} — your tour is set for ${form.tourDate}${form.tourTime ? `, ${form.tourTime}` : ''}. No payment is needed for the tour.`}
             </p>
             <p className="booking-modal__confirm-note">

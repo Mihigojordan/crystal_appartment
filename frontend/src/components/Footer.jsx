@@ -41,17 +41,17 @@ export default function Footer() {
       <div className="container footer__top">
         <div className="footer__brand-card">
           <Link to="/" className="footer__logo">
-            <img src={logo} alt="Crystal Apartment logo" />
+            <img src={logo} alt="Crystal Rental Stay logo" />
           </Link>
-          <h3>CRYSTAL APARTMENT</h3>
-          <p>Timeless apartment living with modern comfort.</p>
+          <h3>CRYSTAL RENTAL STAY</h3>
+          <p>Comfortable rental stays, close to home.</p>
         </div>
 
         <div className="footer__col footer__col--links">
           <h4>Useful Links</h4>
           <ul>
             <li><Link to="/about">About us</Link></li>
-            <li><Link to="/apartments">New Arrivals</Link></li>
+            <li><Link to="/apartments">New Rental Stays</Link></li>
             <li><Link to="/services">Agency</Link></li>
             <li><Link to="/contact">Faq</Link></li>
             <li><Link to="/contact">Contact</Link></li>
@@ -64,7 +64,7 @@ export default function Footer() {
             <li><Link to="/services">Services</Link></li>
             <li><Link to="/services">Agency</Link></li>
             <li><Link to="/about">Agents</Link></li>
-            <li><Link to="/apartments">Pricing</Link></li>
+            <li><Link to="/apartments">Rental Stay Rates</Link></li>
             <li><Link to="/apartments">Favourites</Link></li>
           </ul>
         </div>
@@ -129,7 +129,7 @@ export default function Footer() {
       </div>
 
       <div className="footer__bottom">
-        <p>&copy; {new Date().getFullYear()} Crystal Apartment. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} Crystal Rental Stay. All rights reserved.</p>
       </div>
 
       <button className="footer__totop" onClick={scrollToTop} aria-label="Back to top">
