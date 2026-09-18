@@ -2,8 +2,8 @@
 /dist
 /node_modules
 
-# Logs
-logs
+# Logs (root-level only — don't clobber the src/logs feature module)
+/logs/
 *.log
 npm-debug.log*
 pnpm-debug.log*
