@@ -58,7 +58,7 @@ export default function ApartmentDetail({ apartment, error }) {
   const fullAddress = [apartment.streetAddress, apartment.city, apartment.region, apartment.postalCode].filter(Boolean).join(', ');
   const mapQuery = [apartment.streetAddress, apartment.city, apartment.region].filter(Boolean).join(', ') || apartment.location || 'Kigali, Rwanda';
   const mapsLink = apartment.googleMapsLink || `https://maps.google.com/maps?q=${encodeURIComponent(mapQuery)}`;
-  const bookingListing = { id: apartment.id, title: apartment.name, image: apartment.image, price };
+  const bookingListing = { id: apartment.id, title: apartment.name, image: apartment.image, price, amountUsd: apartment.rent };
 
   const tags = [
     apartment.propertyType,

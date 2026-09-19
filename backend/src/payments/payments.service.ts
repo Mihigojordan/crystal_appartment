@@ -8,6 +8,7 @@ import {
 import { FieldValue, Firestore, Timestamp } from 'firebase-admin/firestore';
 import { FIRESTORE } from '../firebase/firebase.module';
 import { BookingsService, Booking } from '../bookings/bookings.service';
+import { TenantsService } from '../tenants/tenants.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { CreateManualPaymentDto } from './dto/create-manual-payment.dto';
@@ -16,6 +17,7 @@ import {
   PaymentConfirmationService,
   ApprovalDetails,
 } from './payment-confirmation.service';
+import { PesapalStatus } from './pesapal.service';
 
 export interface Payment {
   id: string;
@@ -38,6 +40,7 @@ export interface Payment {
   approvalMessage: string | null;
   whatsappNumber: string | null;
   contractRequirements: string | null;
+  pesapalOrderTrackingId: string | null;
   createdAt: string | null;
 }
 
@@ -61,6 +64,7 @@ interface RawPaymentData {
   approvalMessage?: string | null;
   whatsappNumber?: string | null;
   contractRequirements?: string | null;
+  pesapalOrderTrackingId?: string | null;
   createdAt?: Timestamp;
 }
 
@@ -76,6 +80,7 @@ export class PaymentsService {
   constructor(
     @Inject(FIRESTORE) private readonly firestore: Firestore | null,
     private readonly bookingsService: BookingsService,
+    private readonly tenantsService: TenantsService,
     private readonly confirmationService: PaymentConfirmationService,
   ) {}
 
@@ -110,6 +115,7 @@ export class PaymentsService {
       approvalMessage: data.approvalMessage ?? null,
       whatsappNumber: data.whatsappNumber ?? null,
       contractRequirements: data.contractRequirements ?? null,
+      pesapalOrderTrackingId: data.pesapalOrderTrackingId ?? null,
       createdAt: data.createdAt?.toDate().toISOString() ?? null,
     };
   }
@@ -141,7 +147,7 @@ export class PaymentsService {
   }
 
   // Public — guests submit these from the booking flow after uploading a
-  // MoMo/Airtel screenshot. Always lands as "Pending"; an admin approves or
+  // MoMo screenshot. Always lands as "Pending"; an admin approves or
   // rejects it after checking the money actually arrived.
   async createManual(dto: CreateManualPaymentDto): Promise<Payment> {
     const matched =
@@ -168,6 +174,72 @@ export class PaymentsService {
         updatedAt: FieldValue.serverTimestamp(),
       });
     return this.findOne(ref.id);
+  }
+
+  // Public — called right after a Pesapal order is submitted, before the
+  // guest is redirected to Pesapal's hosted checkout. Lands as "Pending"
+  // and is looked up again by pesapalOrderTrackingId once the guest is
+  // redirected back (see confirmPesapalPayment).
+  async createPesapalPending(data: {
+    guestName: string;
+    guestPhone?: string;
+    apartmentId?: string;
+    apartmentName?: string;
+    bookingId?: string;
+    amount: number;
+    orderTrackingId: string;
+  }): Promise<Payment> {
+    const ref = await this.db()
+      .collection(COLLECTION)
+      .add({
+        tenantName: data.guestName,
+        guestPhone: data.guestPhone ?? null,
+        apartmentId: data.apartmentId ?? null,
+        apartmentName: data.apartmentName ?? null,
+        bookingId: data.bookingId ?? null,
+        amount: data.amount,
+        date: new Date().toISOString().slice(0, 10),
+        method: 'Card',
+        status: 'Pending',
+        pesapalOrderTrackingId: data.orderTrackingId,
+        createdAt: FieldValue.serverTimestamp(),
+        updatedAt: FieldValue.serverTimestamp(),
+      });
+    return this.findOne(ref.id);
+  }
+
+  // Public — called (from the guest's redirect back, and/or Pesapal's IPN
+  // webhook) with a freshly re-checked status from Pesapal's own API.
+  // Never trusts a client-supplied status — the caller must have gotten
+  // `pesapalStatus` from PesapalService.getTransactionStatus() first.
+  async confirmPesapalPayment(
+    orderTrackingId: string,
+    pesapalStatus: PesapalStatus,
+  ): Promise<Payment> {
+    const snap = await this.db()
+      .collection(COLLECTION)
+      .where('pesapalOrderTrackingId', '==', orderTrackingId)
+      .limit(1)
+      .get();
+    if (snap.empty) {
+      throw new NotFoundException('No payment found for this Pesapal order');
+    }
+    const doc = snap.docs[0];
+    const before = this.toPayment(doc.id, doc.data() as RawPaymentData);
+
+    const isCompleted = pesapalStatus.paymentStatus?.toUpperCase() === 'COMPLETED';
+    if (isCompleted && before.status !== 'Paid') {
+      await doc.ref.update({ status: 'Paid', updatedAt: FieldValue.serverTimestamp() });
+    }
+    const updated = await this.findOne(doc.id);
+
+    if (updated.status === 'Paid' && before.status !== 'Paid') {
+      await this.onPaymentApproved(updated, {
+        approvalMessage: "Thank you for your payment! We're excited to welcome you.",
+      });
+    }
+
+    return updated;
   }
 
   // Status corrections are always allowed (not just from "Pending") — an
@@ -213,11 +285,27 @@ export class PaymentsService {
       }
     }
 
+    // Payments recorded directly by an admin (via the "Record Payment" form)
+    // are linked to a tenant, not a booking, so there's no booking.guestEmail
+    // to send to. Fall back to the tenant's own email in that case.
+    let guestEmail = booking?.guestEmail;
+    if (!guestEmail && payment.tenantId) {
+      try {
+        const tenant = await this.tenantsService.findOne(payment.tenantId);
+        guestEmail = tenant.email ?? undefined;
+      } catch (err) {
+        logger.error(
+          `Could not look up tenant ${payment.tenantId} for confirmation email: ${(err as Error).message}`,
+        );
+      }
+    }
+
     try {
       const result = await this.confirmationService.sendConfirmationEmail(
         payment,
         booking,
         details,
+        guestEmail,
       );
       if (!result.sent) {
         logger.warn(

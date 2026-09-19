@@ -14,7 +14,6 @@ import { trackEvent } from '../lib/analytics';
 import './BookingModal.css';
 
 const STEP_LABELS = { tour: 'Tour Date', direct: 'Book Directly', info: 'Your Info', payment: 'Payment' };
-const PAYMENT_METHODS = ['MoMo', 'Airtel'];
 const AMOUNT_MATCH_TOLERANCE = 1;
 
 export default function BookingModal({ listing, onClose }) {
@@ -28,11 +27,15 @@ export default function BookingModal({ listing, onClose }) {
     phone: '',
     moveIn: '',
     notes: '',
-    paymentMethod: 'MoMo',
     paymentPhone: '',
     paymentAmount: '',
     paymentDate: '',
   });
+
+  const [paymentType, setPaymentType] = useState('momo');
+  const [cardAmount, setCardAmount] = useState(listing?.amountUsd ? String(listing.amountUsd) : '');
+  const [cardSubmitting, setCardSubmitting] = useState(false);
+  const [cardError, setCardError] = useState('');
 
   const [screenshotUrl, setScreenshotUrl] = useState('');
   const [uploadingScreenshot, setUploadingScreenshot] = useState(false);
@@ -168,7 +171,7 @@ export default function BookingModal({ listing, onClose }) {
           apartmentId: listing?.id ?? '',
           apartmentName: listing?.title ?? '',
           bookingId: booking.id,
-          method: form.paymentMethod,
+          method: 'MoMo',
           amount: Number(form.paymentAmount),
           date: form.paymentDate,
           screenshotUrl,
@@ -181,6 +184,35 @@ export default function BookingModal({ listing, onClose }) {
       setSubmitError(err.message);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const payWithCard = async () => {
+    if (!form.name || !form.email) {
+      setCardError('Please go back and fill in your name and email first.');
+      return;
+    }
+    if (!cardAmount || Number(cardAmount) <= 0) return;
+    setCardSubmitting(true);
+    setCardError('');
+    try {
+      const booking = await submitBooking('direct');
+      const order = await apiFetch('/payments/pesapal/create-order', {
+        method: 'POST',
+        body: JSON.stringify({
+          amount: Number(cardAmount),
+          guestName: form.name,
+          guestEmail: form.email,
+          guestPhone: form.phone,
+          apartmentId: listing?.id ?? '',
+          apartmentName: listing?.title ?? '',
+          bookingId: booking.id,
+        }),
+      });
+      window.location.href = order.redirectUrl;
+    } catch (err) {
+      setCardError(err.message);
+      setCardSubmitting(false);
     }
   };
 
@@ -324,123 +356,156 @@ export default function BookingModal({ listing, onClose }) {
 
         {step === 'payment' && (
           <div className="booking-modal__body">
-            <h3>Pay with Mobile Money</h3>
+            <h3>Payment</h3>
             <p className="booking-modal__lead">
-              <FaLock /> Send your deposit via MoMo or Airtel Money, then upload the confirmation
-              screenshot so we can verify it.
+              <FaLock /> Choose how you&apos;d like to pay your deposit.
             </p>
 
-            <form onSubmit={submitPayment}>
-              <div className="booking-modal__method-toggle">
-                {PAYMENT_METHODS.map((m) => (
+            <div className="booking-modal__method-toggle">
+              <button type="button" className={paymentType === 'momo' ? 'is-active' : ''} onClick={() => setPaymentType('momo')}>
+                Mobile Money
+              </button>
+              <button type="button" className={paymentType === 'card' ? 'is-active' : ''} onClick={() => setPaymentType('card')}>
+                Card
+              </button>
+            </div>
+
+            {paymentType === 'momo' ? (
+              <form onSubmit={submitPayment}>
+                <div className="booking-modal__field">
+                  <label htmlFor="pay-phone">Phone Number Used to Pay (MTN MoMo)</label>
+                  <input
+                    id="pay-phone"
+                    type="tel"
+                    required
+                    value={form.paymentPhone}
+                    onChange={update('paymentPhone')}
+                    placeholder="e.g. 078xxxxxxx"
+                  />
+                </div>
+
+                <div className="booking-modal__row">
+                  <div className="booking-modal__field">
+                    <label htmlFor="pay-amount">Amount Paid (RWF)</label>
+                    <input
+                      id="pay-amount"
+                      type="number"
+                      min="0"
+                      required
+                      value={form.paymentAmount}
+                      onChange={updateAndReset('paymentAmount')}
+                      placeholder="e.g. 65000"
+                    />
+                  </div>
+                  <div className="booking-modal__field">
+                    <label htmlFor="pay-date">Date of Payment</label>
+                    <input
+                      id="pay-date"
+                      type="date"
+                      required
+                      value={form.paymentDate}
+                      onChange={updateAndReset('paymentDate')}
+                    />
+                  </div>
+                </div>
+
+                <div className="booking-modal__field">
+                  <label htmlFor="pay-screenshot">Payment Confirmation Screenshot</label>
+                  <label className="booking-modal__upload">
+                    <FaCloudUploadAlt />
+                    {uploadingScreenshot ? 'Uploading…' : screenshotUrl ? 'Replace screenshot' : 'Choose screenshot'}
+                    <input
+                      id="pay-screenshot"
+                      type="file"
+                      accept="image/*"
+                      hidden
+                      disabled={uploadingScreenshot}
+                      onChange={(e) => { uploadScreenshot(e.target.files[0]); e.target.value = ''; }}
+                    />
+                  </label>
+                  {uploadError && <p className="booking-modal__error">{uploadError}</p>}
+                  {screenshotUrl && (
+                    <div className="booking-modal__screenshot">
+                      <img src={screenshotUrl} alt="Payment confirmation" />
+                    </div>
+                  )}
+                </div>
+
+                {screenshotUrl && !matched && (
                   <button
                     type="button"
-                    key={m}
-                    className={form.paymentMethod === m ? 'is-active' : ''}
-                    onClick={() => setForm((f) => ({ ...f, paymentMethod: m }))}
+                    className="booking-modal__verify"
+                    onClick={verifyPayment}
+                    disabled={verifying || !form.paymentAmount || !form.paymentDate}
                   >
-                    {m === 'MoMo' ? 'MTN MoMo' : 'Airtel Money'}
+                    <FaShieldAlt /> {verifying ? 'Verifying…' : 'Verify Payment'}
                   </button>
-                ))}
-              </div>
+                )}
 
-              <div className="booking-modal__field">
-                <label htmlFor="pay-phone">Phone Number Used to Pay</label>
-                <input
-                  id="pay-phone"
-                  type="tel"
-                  required
-                  value={form.paymentPhone}
-                  onChange={update('paymentPhone')}
-                  placeholder="e.g. 078xxxxxxx"
-                />
-              </div>
+                {verifyError && <p className="booking-modal__error">{verifyError}</p>}
 
-              <div className="booking-modal__row">
-                <div className="booking-modal__field">
-                  <label htmlFor="pay-amount">Amount Paid (RWF)</label>
-                  <input
-                    id="pay-amount"
-                    type="number"
-                    min="0"
-                    required
-                    value={form.paymentAmount}
-                    onChange={updateAndReset('paymentAmount')}
-                    placeholder="e.g. 65000"
-                  />
-                </div>
-                <div className="booking-modal__field">
-                  <label htmlFor="pay-date">Date of Payment</label>
-                  <input
-                    id="pay-date"
-                    type="date"
-                    required
-                    value={form.paymentDate}
-                    onChange={updateAndReset('paymentDate')}
-                  />
-                </div>
-              </div>
-
-              <div className="booking-modal__field">
-                <label htmlFor="pay-screenshot">Payment Confirmation Screenshot</label>
-                <label className="booking-modal__upload">
-                  <FaCloudUploadAlt />
-                  {uploadingScreenshot ? 'Uploading…' : screenshotUrl ? 'Replace screenshot' : 'Choose screenshot'}
-                  <input
-                    id="pay-screenshot"
-                    type="file"
-                    accept="image/*"
-                    hidden
-                    disabled={uploadingScreenshot}
-                    onChange={(e) => { uploadScreenshot(e.target.files[0]); e.target.value = ''; }}
-                  />
-                </label>
-                {uploadError && <p className="booking-modal__error">{uploadError}</p>}
-                {screenshotUrl && (
-                  <div className="booking-modal__screenshot">
-                    <img src={screenshotUrl} alt="Payment confirmation" />
+                {extracted && (
+                  <div className={`booking-modal__match ${matched ? 'is-match' : 'is-mismatch'}`}>
+                    {matched ? <FaCheckCircle /> : <FaTimesCircle />}
+                    <div>
+                      <strong>{matched ? 'Payment verified' : "That doesn't match what you entered"}</strong>
+                      <span>
+                        Screenshot shows {extracted.amount != null ? `RWF ${extracted.amount.toLocaleString()}` : 'an unreadable amount'}
+                        {extracted.date ? ` on ${extracted.date}` : ''}.
+                        {!matched && ' Double-check your amount/date, or upload a clearer screenshot.'}
+                      </span>
+                    </div>
                   </div>
                 )}
-              </div>
 
-              {screenshotUrl && !matched && (
-                <button
-                  type="button"
-                  className="booking-modal__verify"
-                  onClick={verifyPayment}
-                  disabled={verifying || !form.paymentAmount || !form.paymentDate}
-                >
-                  <FaShieldAlt /> {verifying ? 'Verifying…' : 'Verify Payment'}
-                </button>
-              )}
+                {submitError && <p className="booking-modal__error">{submitError}</p>}
 
-              {verifyError && <p className="booking-modal__error">{verifyError}</p>}
-
-              {extracted && (
-                <div className={`booking-modal__match ${matched ? 'is-match' : 'is-mismatch'}`}>
-                  {matched ? <FaCheckCircle /> : <FaTimesCircle />}
-                  <div>
-                    <strong>{matched ? 'Payment verified' : "That doesn't match what you entered"}</strong>
-                    <span>
-                      Screenshot shows {extracted.amount != null ? `RWF ${extracted.amount.toLocaleString()}` : 'an unreadable amount'}
-                      {extracted.date ? ` on ${extracted.date}` : ''}.
-                      {!matched && ' Double-check your amount/date, or upload a clearer screenshot.'}
-                    </span>
-                  </div>
+                <div className="booking-modal__actions">
+                  <button type="button" className="booking-modal__back" onClick={() => setStep('info')}>
+                    <FaArrowLeft /> Back
+                  </button>
+                  <button type="submit" className="btn btn-primary booking-modal__submit" disabled={submitting || !matched}>
+                    {submitting ? 'Submitting…' : 'Submit Payment'}
+                  </button>
                 </div>
-              )}
+              </form>
+            ) : (
+              <div>
+                <div className="booking-modal__field">
+                  <label htmlFor="pay-card-amount">Amount to Pay (USD)</label>
+                  <input
+                    id="pay-card-amount"
+                    type="number"
+                    min="1"
+                    step="0.01"
+                    required
+                    value={cardAmount}
+                    onChange={(e) => setCardAmount(e.target.value)}
+                    placeholder="e.g. 100"
+                  />
+                </div>
 
-              {submitError && <p className="booking-modal__error">{submitError}</p>}
+                <p className="booking-modal__lead">
+                  You&apos;ll be redirected to Pesapal&apos;s secure checkout to complete your card payment.
+                </p>
 
-              <div className="booking-modal__actions">
-                <button type="button" className="booking-modal__back" onClick={() => setStep('info')}>
-                  <FaArrowLeft /> Back
-                </button>
-                <button type="submit" className="btn btn-primary booking-modal__submit" disabled={submitting || !matched}>
-                  {submitting ? 'Submitting…' : 'Submit Payment'}
-                </button>
+                {cardError && <p className="booking-modal__error">{cardError}</p>}
+
+                <div className="booking-modal__actions">
+                  <button type="button" className="booking-modal__back" onClick={() => setStep('info')}>
+                    <FaArrowLeft /> Back
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-primary booking-modal__submit"
+                    onClick={payWithCard}
+                    disabled={cardSubmitting || !cardAmount || Number(cardAmount) <= 0}
+                  >
+                    {cardSubmitting ? 'Redirecting…' : 'Pay with Card'}
+                  </button>
+                </div>
               </div>
-            </form>
+            )}
           </div>
         )}
 

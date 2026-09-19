@@ -10,6 +10,7 @@ import ApartmentsPage from './pages/ApartmentsPage';
 import ApartmentDetailPage from './pages/ApartmentDetailPage';
 import GalleryPage from './pages/GalleryPage';
 import ContactPage from './pages/ContactPage';
+import PaymentSuccessPage from './pages/PaymentSuccessPage';
 import AdminLayout from './components/admin/AdminLayout';
 import Login from './pages/admin/Login';
 import Overview from './pages/admin/Overview';
@@ -43,6 +44,7 @@ function App() {
             <Route path="/apartments/:id" element={<ApartmentDetailPage />} />
             <Route path="/gallery" element={<GalleryPage />} />
             <Route path="/contact" element={<ContactPage />} />
+            <Route path="/payment/success" element={<PaymentSuccessPage />} />
           </Route>
 
           <Route path="/admin/login" element={<Login />} />

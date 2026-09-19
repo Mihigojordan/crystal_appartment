@@ -1,6 +1,6 @@
 import { IsIn, IsNotEmpty, IsNumber, IsOptional, IsString, Min } from 'class-validator';
 
-export const MANUAL_PAYMENT_METHODS = ['MoMo', 'Airtel'] as const;
+export const MANUAL_PAYMENT_METHODS = ['MoMo'] as const;
 export type ManualPaymentMethod = (typeof MANUAL_PAYMENT_METHODS)[number];
 
 export class CreateManualPaymentDto {

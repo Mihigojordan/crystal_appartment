@@ -25,9 +25,10 @@ export class PaymentConfirmationService {
     payment: Payment,
     booking: Booking | null,
     details: ApprovalDetails,
+    guestEmail?: string,
   ): Promise<{ sent: boolean; reason?: string }> {
-    const to = booking?.guestEmail;
-    if (!to) return { sent: false, reason: 'No guest email on file for this booking' };
+    const to = guestEmail || booking?.guestEmail;
+    if (!to) return { sent: false, reason: 'No guest email on file for this payment' };
 
     const apiKey = this.config.get<string>('BREVO_API_KEY');
     const fromEmail = this.config.get<string>('EMAIL_FROM');
