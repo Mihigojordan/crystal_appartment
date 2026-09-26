@@ -47,10 +47,22 @@
   margin-bottom: 4px;
 }
 
-.contact__info-card p {
+.contact__info-card p,
+.contact__info-link {
   font-size: 0.88rem;
   color: var(--text-body);
   line-height: 1.5;
+}
+
+.contact__info-link {
+  display: inline-block;
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.contact__info-link:hover {
+  color: var(--accent);
+  text-decoration: underline;
 }
 
 .contact__map {
@@ -121,6 +133,18 @@
 
 .contact__submit {
   align-self: flex-start;
+}
+
+.contact__form-error {
+  font-size: 0.85rem;
+  color: #c0392b;
+  margin: -8px 0 0;
+}
+
+.contact__form-success {
+  font-size: 0.85rem;
+  color: #1e8e5a;
+  margin: -8px 0 0;
 }
 
 @media (max-width: 900px) {

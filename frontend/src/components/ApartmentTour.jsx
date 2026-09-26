@@ -38,8 +38,8 @@ export default function ApartmentTour() {
     <section id="gallery" className="tour">
       <div className="container">
         <div className="section-head tour__head">
-          <h2 className="section-title">Take a Tour of Crystal Apartment</h2>
-          <p>Step inside and see every space that makes Crystal Apartment feel like home.</p>
+          <h2 className="section-title">Take a Tour of Crystal Rental Stay</h2>
+          <p>Step inside and see every space that makes Crystal Rental Stay feel like home.</p>
         </div>
 
         <div className="tour__row">

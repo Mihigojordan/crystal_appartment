@@ -1,0 +1,119 @@
+.admin-data-table__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.admin-data-table__head h3 {
+  font-size: 1.05rem;
+}
+
+.admin-data-table__controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-data-table__controls .admin-select,
+.admin-data-table__controls .admin-input {
+  width: auto;
+  min-width: 140px;
+}
+
+.admin-data-table__scroll {
+  overflow-x: auto;
+}
+
+.admin-data-table table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.87rem;
+}
+
+.admin-data-table th {
+  text-align: left;
+  padding: 10px 12px;
+  color: var(--admin-text-muted);
+  font-weight: 600;
+  border-bottom: 1px solid var(--admin-border);
+  white-space: nowrap;
+}
+
+.admin-data-table td {
+  padding: 12px;
+  border-bottom: 1px solid var(--admin-border);
+  white-space: nowrap;
+}
+
+.admin-data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-data-table__icon-col {
+  width: 40px;
+}
+
+.admin-data-table__row-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--admin-surface-4);
+  color: var(--admin-accent);
+  font-size: 0.85rem;
+}
+
+.admin-data-table__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--admin-border);
+}
+
+.admin-data-table__page-size {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+  color: var(--admin-text-muted);
+}
+
+.admin-data-table__page-size select {
+  width: auto;
+  padding: 6px 10px;
+}
+
+.admin-data-table__pagination {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-data-table__pagination .admin-icon-btn {
+  width: 32px;
+  height: 32px;
+  font-size: 0.75rem;
+}
+
+.admin-data-table__page-num {
+  min-width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background: linear-gradient(135deg, var(--admin-accent), var(--admin-accent-2));
+  color: #fff;
+  font-size: 0.82rem;
+  font-weight: 700;
+}

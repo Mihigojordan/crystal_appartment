@@ -1,6 +1,5 @@
 import Hero from '../components/Hero';
 import Services from '../components/Services';
-import PropertyOfDay from '../components/PropertyOfDay';
 import Listings from '../components/Listings';
 import WhyUs from '../components/WhyUs';
 import ApartmentTour from '../components/ApartmentTour';
@@ -11,12 +10,11 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <Services />
-      <PropertyOfDay />
       <Listings />
+      <Services />
+      <AppPromo />
       <WhyUs />
       <ApartmentTour />
-      <AppPromo />
       <Testimonials />
     </>
   );

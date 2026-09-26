@@ -1,0 +1,150 @@
+.admin-apartments {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.admin-apartments__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.admin-apartments__head h2 {
+  font-size: 1.4rem;
+}
+
+.admin-apartments__row-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.admin-apartments__row-actions button {
+  background: transparent;
+  border: none;
+  color: var(--admin-text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+}
+
+.admin-apartments__row-actions button:hover {
+  background: var(--admin-surface-3);
+  color: var(--admin-text);
+}
+
+.admin-payments__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 13, 19, 0.6);
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  z-index: 100;
+}
+
+.admin-payments__view {
+  width: 100%;
+  max-width: 420px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.admin-payments__view-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.admin-payments__view-head h3 {
+  font-size: 1.15rem;
+}
+
+.admin-payments__close {
+  background: transparent;
+  border: none;
+  color: var(--admin-text-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 6px;
+}
+
+.admin-payments__close:hover {
+  background: var(--admin-surface-3);
+  color: var(--admin-text);
+}
+
+.admin-payments__view-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: var(--admin-text-muted);
+}
+
+.admin-payments__view-fields {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 6px 12px;
+  font-size: 0.9rem;
+}
+
+.admin-payments__view-fields dt {
+  color: var(--admin-text-muted);
+}
+
+.admin-payments__view-fields dd {
+  color: var(--admin-text);
+}
+
+.admin-payments__view-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-payments__proof {
+  border: 1px solid var(--admin-border);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.admin-payments__proof-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--admin-text-muted);
+}
+
+.admin-payments__proof img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: contain;
+  border-radius: 8px;
+  background: var(--admin-surface-1);
+}
+
+.admin-payments__field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.admin-payments__field label {
+  font-size: 0.75rem;
+  color: var(--admin-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}

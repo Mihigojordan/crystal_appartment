@@ -1,0 +1,327 @@
+.admin-apt-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.admin-apt-form__head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.admin-apt-form__head h2 {
+  flex: 1;
+  font-size: 1.4rem;
+}
+
+.admin-apt-form__body {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.admin-apt-form__section {
+  flex: 1 1 100%;
+  border-radius: 12px;
+}
+
+.admin-apt-form__section--half {
+  flex: 1 1 calc(50% - 10px);
+}
+
+.admin-apt-form__section h3 {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 18px;
+}
+
+.admin-apt-form .admin-input,
+.admin-apt-form .admin-select,
+.admin-apt-form .admin-textarea {
+  background: var(--admin-surface-3);
+  padding: 12px 14px;
+  font-size: 0.875rem;
+}
+
+.admin-apt-form__row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+  align-items: end;
+}
+
+.admin-apt-form__row:last-child {
+  margin-bottom: 0;
+}
+
+.admin-apt-form__row--1 {
+  grid-template-columns: 1fr;
+}
+
+.admin-apt-form__row--2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.admin-apt-form__row--3 {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.admin-apt-form__row--4 {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.admin-apt-form__section--half .admin-apt-form__row--3,
+.admin-apt-form__section--half .admin-apt-form__row--4 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.admin-apt-form__field label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--admin-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+.admin-apt-form__field--inline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-apt-form__field--inline label {
+  margin-bottom: 0;
+  white-space: nowrap;
+}
+
+.admin-apt-form__field--inline .admin-select {
+  width: auto;
+  min-width: 140px;
+}
+
+.admin-apt-form__field--notes {
+  margin-top: 16px;
+}
+
+.admin-apt-form__hint {
+  font-size: 0.8rem;
+  color: var(--admin-text-muted);
+  margin: -10px 0 14px;
+}
+
+.admin-apt-form__hint--label {
+  margin: 16px 0 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 0.72rem;
+}
+
+.admin-apt-form__section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.admin-apt-form__section-head h3 {
+  margin-bottom: 0;
+}
+
+.admin-apt-form__chipgroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.admin-apt-form__chip-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: var(--admin-surface-1);
+  color: var(--admin-text-body);
+  border: 1px solid var(--admin-border);
+}
+
+.admin-apt-form__chip-toggle:hover {
+  border-color: var(--admin-accent);
+}
+
+.admin-apt-form__chip-toggle.is-active {
+  background: rgba(255, 106, 61, 0.15);
+  color: var(--admin-accent);
+  border-color: var(--admin-accent);
+}
+
+.admin-apt-form__pricing-tiers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.admin-apt-form__pricing-tier {
+  flex: 1 1 180px;
+  background: var(--admin-surface-1);
+  border: 1px solid var(--admin-border);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+
+.admin-apt-form__pricing-tier label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--admin-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+
+.admin-apt-form__pricing-tier .admin-input {
+  background: var(--admin-surface-2);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.admin-apt-form__footer {
+  flex: 1 1 100%;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.admin-apt-form__inline-add {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.admin-apt-form__inline-add .admin-input {
+  flex: 1;
+  min-width: 160px;
+}
+
+.admin-apt-form__image-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-apt-form__image-row .admin-input {
+  flex: 1;
+  min-width: 160px;
+}
+
+.admin-apt-form__thumb {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid var(--admin-border);
+  flex-shrink: 0;
+}
+
+.admin-apt-form__thumb--sm {
+  width: 34px;
+  height: 34px;
+  border-radius: 6px;
+}
+
+.admin-apt-form__dropzone-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.admin-apt-form__dropzone-error {
+  display: block;
+  color: var(--admin-warning);
+  font-size: 0.78rem;
+  margin-top: 6px;
+}
+
+.admin-apt-form__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  list-style: none;
+}
+
+.admin-apt-form__list li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: var(--admin-surface-1);
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+}
+
+.admin-apt-form__list-text {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-apt-form__list button {
+  background: transparent;
+  border: none;
+  color: var(--admin-text-muted);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.admin-apt-form__list button:hover {
+  color: var(--admin-warning);
+}
+
+@media (max-width: 1100px) {
+  .admin-apt-form__section--half {
+    flex-basis: 100%;
+  }
+}
+
+@media (max-width: 700px) {
+  .admin-apt-form__row,
+  .admin-apt-form__row--2,
+  .admin-apt-form__row--3,
+  .admin-apt-form__row--4,
+  .admin-apt-form__section--half .admin-apt-form__row--3,
+  .admin-apt-form__section--half .admin-apt-form__row--4 {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-apt-form__section-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-apt-form__field--inline {
+    width: 100%;
+  }
+
+  .admin-apt-form__field--inline .admin-select {
+    flex: 1;
+  }
+}

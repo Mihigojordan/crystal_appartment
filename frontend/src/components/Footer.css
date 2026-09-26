@@ -192,7 +192,7 @@
 
 .footer__totop {
   position: fixed;
-  right: 24px;
+  left: 24px;
   bottom: 24px;
   width: 44px;
   height: 44px;
@@ -257,7 +257,7 @@
   }
 
   .footer__totop {
-    right: 16px;
+    left: 16px;
     bottom: 16px;
     width: 40px;
     height: 40px;

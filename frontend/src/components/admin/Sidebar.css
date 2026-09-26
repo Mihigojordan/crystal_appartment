@@ -1,0 +1,82 @@
+.admin-sidebar {
+  width: var(--sidebar-w, 272px);
+  flex-shrink: 0;
+  background: var(--admin-surface-1);
+  border-right: 1px solid var(--admin-border);
+  padding: 20px 14px;
+  overflow-y: auto;
+  transition: width 0.2s ease;
+}
+
+.admin-sidebar__section-label {
+  margin: 4px 12px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--admin-text-dim);
+}
+
+.admin-sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.admin-sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  color: var(--admin-text-muted);
+  font-size: 0.92rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.admin-sidebar__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: var(--admin-surface-3);
+  color: var(--admin-text-muted);
+  font-size: 0.95rem;
+  flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.admin-sidebar__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.admin-sidebar__link:hover {
+  background: var(--admin-surface-3);
+  color: var(--admin-text);
+}
+
+.admin-sidebar__link.is-active {
+  background: rgba(255, 106, 61, 0.12);
+  color: var(--admin-accent);
+  font-weight: 600;
+}
+
+.admin-sidebar__link.is-active .admin-sidebar__icon {
+  background: var(--admin-accent);
+  color: #fff;
+}
+
+.admin-sidebar.is-collapsed {
+  padding: 20px 10px;
+}
+
+.admin-sidebar.is-collapsed .admin-sidebar__link {
+  justify-content: center;
+  padding: 8px;
+}
