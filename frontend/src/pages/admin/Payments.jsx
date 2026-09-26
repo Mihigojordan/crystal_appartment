@@ -5,6 +5,7 @@ import StatCard from '../../components/admin/StatCard';
 import DataTable from '../../components/admin/DataTable';
 import PaymentFormModal from '../../components/admin/PaymentFormModal';
 import ApprovePaymentModal from '../../components/admin/ApprovePaymentModal';
+import RejectPaymentModal from '../../components/admin/RejectPaymentModal';
 import './Apartments.css';
 
 const STATUSES = ['Paid', 'Pending', 'Partial', 'Failed'];
@@ -29,6 +30,7 @@ export default function Payments() {
   const [showForm, setShowForm] = useState(false);
   const [viewing, setViewing] = useState(null);
   const [approving, setApproving] = useState(null);
+  const [rejecting, setRejecting] = useState(null);
 
   const load = () => {
     setLoading(true);
@@ -89,6 +91,10 @@ export default function Payments() {
     await updateStatus(approving, 'Paid', form);
   };
 
+  const handleRejectSubmit = async (form) => {
+    await updateStatus(rejecting, 'Failed', form);
+  };
+
   const columns = [
     { key: 'date', header: 'Date' },
     { key: 'tenantName', header: 'Tenant', value: (r) => r.tenantName ?? '—' },
@@ -114,7 +120,7 @@ export default function Payments() {
           <button type="button" onClick={() => updateStatus(r, 'Partial')} aria-label="Mark partial">
             <FaAdjust />
           </button>
-          <button type="button" onClick={() => updateStatus(r, 'Failed')} aria-label="Reject payment">
+          <button type="button" onClick={() => setRejecting(r)} aria-label="Reject payment">
             <FaBan />
           </button>
           <button type="button" onClick={() => handleDelete(r)} aria-label="Delete">
@@ -176,6 +182,13 @@ export default function Payments() {
         <ApprovePaymentModal
           onClose={() => setApproving(null)}
           onApprove={handleApproveSubmit}
+        />
+      )}
+
+      {rejecting && (
+        <RejectPaymentModal
+          onClose={() => setRejecting(null)}
+          onReject={handleRejectSubmit}
         />
       )}
 

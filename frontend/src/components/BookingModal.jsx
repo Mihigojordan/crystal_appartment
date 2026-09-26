@@ -8,6 +8,7 @@ import {
   FaArrowLeft,
   FaCloudUploadAlt,
   FaShieldAlt,
+  FaBolt,
 } from 'react-icons/fa';
 import { apiFetch } from '../lib/apiClient';
 import { trackEvent } from '../lib/analytics';
@@ -287,8 +288,8 @@ export default function BookingModal({ listing, onClose }) {
               </button>
             </form>
 
-            <button type="button" className="booking-modal__skip" onClick={() => goToInfo(true)}>
-              Skip tour date &mdash; book directly
+            <button type="button" className="btn btn-primary booking-modal__submit booking-modal__book-direct" onClick={() => goToInfo(true)}>
+              <FaBolt /> Book Directly
             </button>
           </div>
         )}
@@ -365,8 +366,13 @@ export default function BookingModal({ listing, onClose }) {
               <button type="button" className={paymentType === 'momo' ? 'is-active' : ''} onClick={() => setPaymentType('momo')}>
                 Mobile Money
               </button>
-              <button type="button" className={paymentType === 'card' ? 'is-active' : ''} onClick={() => setPaymentType('card')}>
-                Card
+              <button
+                type="button"
+                className="is-disabled"
+                disabled
+                title="Card payments are still in testing and temporarily unavailable"
+              >
+                Card (Coming Soon)
               </button>
             </div>
 

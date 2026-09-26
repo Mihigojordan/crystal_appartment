@@ -21,6 +21,7 @@
     "seed:admin": "ts-node -r dotenv/config src/scripts/seed-admin.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.128.0",
     "@google-analytics/data": "^7.1.0",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.4",

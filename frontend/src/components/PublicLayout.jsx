@@ -3,6 +3,7 @@ import { CurrencyProvider } from '../context/CurrencyContext';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import ScrollToTop from './ScrollToTop';
+import WhatsAppButton from './WhatsAppButton';
 
 export default function PublicLayout() {
   return (
@@ -11,6 +12,7 @@ export default function PublicLayout() {
       <Navbar />
       <Outlet />
       <Footer />
+      <WhatsAppButton />
     </CurrencyProvider>
   );
 }

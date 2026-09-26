@@ -145,6 +145,15 @@
   background: var(--admin-surface-3);
 }
 
+.admin-btn-danger {
+  color: #fff;
+  background: linear-gradient(135deg, #e8492c, #c2410c);
+}
+
+.admin-btn-danger:hover {
+  transform: translateY(-1px);
+}
+
 .admin-input,
 .admin-select,
 .admin-textarea {

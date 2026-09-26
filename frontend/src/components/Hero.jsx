@@ -1,12 +1,11 @@
 import { Link } from 'react-router-dom';
-import { FaHome, FaCalendarCheck, FaKey } from 'react-icons/fa';
+import { FaHome, FaCalendarCheck } from 'react-icons/fa';
 import heroImg from '../assets/hero.jpg';
 import './Hero.css';
 
 const quickLinks = [
   { icon: <FaHome />, label: 'Rental Stays', to: '/apartments' },
-  { icon: <FaCalendarCheck />, label: 'Booking', to: '/contact' },
-  { icon: <FaKey />, label: 'Amenities', to: '/about' },
+  { icon: <FaCalendarCheck />, label: 'Booking', to: '/apartments' },
 ];
 
 export default function Hero() {

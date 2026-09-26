@@ -89,4 +89,11 @@ export class UpdatePaymentDto {
   @IsOptional()
   @IsString()
   contractRequirements?: string;
+
+  // Set when rejecting a payment (status -> "Failed") — collected via the
+  // reject popup and sent to the guest explaining why. Triggers
+  // PaymentsService.update()'s rejection email.
+  @IsOptional()
+  @IsString()
+  rejectionReason?: string;
 }

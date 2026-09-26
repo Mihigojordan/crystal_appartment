@@ -9,6 +9,7 @@ import { FieldValue, Firestore, Timestamp } from 'firebase-admin/firestore';
 import { FIRESTORE } from '../firebase/firebase.module';
 import { BookingsService, Booking } from '../bookings/bookings.service';
 import { TenantsService } from '../tenants/tenants.service';
+import { ApartmentsService } from '../apartments/apartments.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
 import { CreateManualPaymentDto } from './dto/create-manual-payment.dto';
@@ -81,6 +82,7 @@ export class PaymentsService {
     @Inject(FIRESTORE) private readonly firestore: Firestore | null,
     private readonly bookingsService: BookingsService,
     private readonly tenantsService: TenantsService,
+    private readonly apartmentsService: ApartmentsService,
     private readonly confirmationService: PaymentConfirmationService,
   ) {}
 
@@ -173,7 +175,28 @@ export class PaymentsService {
         createdAt: FieldValue.serverTimestamp(),
         updatedAt: FieldValue.serverTimestamp(),
       });
-    return this.findOne(ref.id);
+    const payment = await this.findOne(ref.id);
+
+    let booking: Booking | null = null;
+    if (payment.bookingId) {
+      try {
+        booking = await this.bookingsService.findOne(payment.bookingId);
+      } catch (err) {
+        logger.error(
+          `Could not look up booking ${payment.bookingId} for new-booking notification: ${(err as Error).message}`,
+        );
+      }
+    }
+    try {
+      const result = await this.confirmationService.sendNewBookingAdminEmail(payment, booking);
+      if (!result.sent) {
+        logger.warn(`New-booking admin notification not sent for payment ${payment.id}: ${result.reason}`);
+      }
+    } catch (err) {
+      logger.error(`New-booking admin notification failed for payment ${payment.id}: ${(err as Error).message}`);
+    }
+
+    return payment;
   }
 
   // Public — called right after a Pesapal order is submitted, before the
@@ -264,7 +287,31 @@ export class PaymentsService {
       });
     }
 
+    if (updated.status === 'Failed' && before.status !== 'Failed') {
+      await this.onPaymentRejected(updated, dto.rejectionReason);
+    }
+
     return updated;
+  }
+
+  // Payments recorded directly by an admin (via the "Record Payment" form)
+  // are linked to a tenant, not a booking, so there's no booking.guestEmail
+  // to send to. Fall back to the tenant's own email in that case.
+  private async resolveGuestEmail(
+    payment: Payment,
+    booking: Booking | null,
+  ): Promise<string | undefined> {
+    if (booking?.guestEmail) return booking.guestEmail;
+    if (!payment.tenantId) return undefined;
+    try {
+      const tenant = await this.tenantsService.findOne(payment.tenantId);
+      return tenant.email ?? undefined;
+    } catch (err) {
+      logger.error(
+        `Could not look up tenant ${payment.tenantId} for confirmation email: ${(err as Error).message}`,
+      );
+      return undefined;
+    }
   }
 
   private async onPaymentApproved(
@@ -285,36 +332,75 @@ export class PaymentsService {
       }
     }
 
-    // Payments recorded directly by an admin (via the "Record Payment" form)
-    // are linked to a tenant, not a booking, so there's no booking.guestEmail
-    // to send to. Fall back to the tenant's own email in that case.
-    let guestEmail = booking?.guestEmail;
-    if (!guestEmail && payment.tenantId) {
+    const guestEmail = await this.resolveGuestEmail(payment, booking);
+
+    let monthlyRent: number | null = null;
+    if (payment.apartmentId) {
       try {
-        const tenant = await this.tenantsService.findOne(payment.tenantId);
-        guestEmail = tenant.email ?? undefined;
+        const apartment = await this.apartmentsService.findOne(payment.apartmentId);
+        monthlyRent = apartment.rent;
       } catch (err) {
         logger.error(
-          `Could not look up tenant ${payment.tenantId} for confirmation email: ${(err as Error).message}`,
+          `Could not look up apartment ${payment.apartmentId} for confirmation email: ${(err as Error).message}`,
         );
       }
     }
 
     try {
-      const result = await this.confirmationService.sendConfirmationEmail(
+      const result = await this.confirmationService.sendApprovedEmail(
         payment,
         booking,
         details,
         guestEmail,
+        monthlyRent,
       );
       if (!result.sent) {
         logger.warn(
-          `Confirmation email not sent for payment ${payment.id}: ${result.reason}`,
+          `Approval email not sent for payment ${payment.id}: ${result.reason}`,
         );
       }
     } catch (err) {
       logger.error(
-        `Confirmation email failed for payment ${payment.id}: ${(err as Error).message}`,
+        `Approval email failed for payment ${payment.id}: ${(err as Error).message}`,
+      );
+    }
+  }
+
+  private async onPaymentRejected(
+    payment: Payment,
+    reason: string | undefined,
+  ): Promise<void> {
+    let booking: Booking | null = null;
+    if (payment.bookingId) {
+      try {
+        booking = await this.bookingsService.updateStatus(
+          payment.bookingId,
+          'Cancelled',
+        );
+      } catch (err) {
+        logger.error(
+          `Could not auto-cancel booking ${payment.bookingId}: ${(err as Error).message}`,
+        );
+      }
+    }
+
+    const guestEmail = await this.resolveGuestEmail(payment, booking);
+
+    try {
+      const result = await this.confirmationService.sendRejectedEmail(
+        payment,
+        booking,
+        reason?.trim() || 'The payment could not be verified.',
+        guestEmail,
+      );
+      if (!result.sent) {
+        logger.warn(
+          `Rejection email not sent for payment ${payment.id}: ${result.reason}`,
+        );
+      }
+    } catch (err) {
+      logger.error(
+        `Rejection email failed for payment ${payment.id}: ${(err as Error).message}`,
       );
     }
   }
